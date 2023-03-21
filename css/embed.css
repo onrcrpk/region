@@ -1,0 +1,59 @@
+body
+{
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 12px;
+}
+
+#embed
+{
+    margin: 0;
+}
+
+#embed .xc-audio
+{
+    padding: 5px 10px;
+    border: 0px;
+    background-color: transparent;
+    margin:0px;
+    /* with padding, guarantees that we don't exceed 220px iframe height */
+    max-height: 208px;
+}
+
+#embed.darkbg .xc-audio,
+#embed.darkbg .xc-audio .jp-duration,
+#embed.darkbg .xc-audio .jp-xc-duration,
+#embed.darkbg .xc-audio .jp-current-time
+{
+    color: #EEEEEE;
+}
+
+img {
+  border: 0px;
+}
+
+.xc-audio .jp-title,
+.xc-audio .jp-xc-recordist,
+.xc-audio .jp-xc-date,
+.xc-audio .jp-xc-location
+{
+  white-space: nowrap;
+}
+
+.xc-audio .jp-xc-sono img
+{
+    max-height: 98px;
+}
+
+.error
+{
+    color: hsl(0, 50%, 50%);
+    border-color: hsl(0, 50%, 50%);
+    background-color: hsl(0, 100%, 92%);
+    text-align: left;
+    padding: 0.5em 1em;
+    border-radius: 3px;
+    border-width: 1px;
+    border-style: solid;
+    box-shadow: 1px 1px 4px hsla(0, 0%, 0%, 0.3);
+    margin: 1em;
+}

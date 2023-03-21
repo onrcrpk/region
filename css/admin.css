@@ -1,0 +1,48 @@
+a, a:link, a:visited, a:active
+{
+    color: #4A6C82;
+}
+
+#spotlight-form
+{
+    width: 100%;
+}
+
+#spotlight-form > *
+{
+    margin: 0.5em;
+}
+
+#delete-form input[type=submit],
+#spotlight-form input[type=text],
+#spotlight-form textarea
+{
+    width: 100%;
+}
+
+#spotlight-form textarea
+{
+    height: 15em;
+}
+
+body > header
+{
+    background-color: #4A6C82;
+}
+
+body > header.debug
+{
+    background-color: #ccdc46;
+}
+
+body > header > #main-menu ul.sf-menu > li.sfHover,
+#banner .search-box input[type="submit"],
+.prominent-button,
+input[type=button],
+input[type=submit],
+thead > tr:first-child,
+body > header #main-menu
+{
+    background-color: #253641;
+    background-image: none;
+}

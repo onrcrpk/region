@@ -1,0 +1,334 @@
+/* common rules */
+.jp-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.jp-controls li a {
+    position: relative;
+    display: block;
+    text-indent: -9999px;
+}
+
+.jp-seek-bar {
+    width: 0;
+}
+
+.jp-play-bar {
+    width: 0;
+    background-color: hsl(14, 87%, 28%);
+    background-image: -webkit-linear-gradient(top, hsl(14, 88%, 35%), hsl(14, 87%, 28%));
+}
+
+/***************************************************
+ * Button player
+ ***************************************************/
+.xc-button-audio,
+.xc-button-audio .jp-no-solution,
+.xc-button-audio .jp-play,
+.xc-button-audio .jp-progress,
+.xc-button-audio .jp-pause {
+    height: 14px;
+    width: 14px;
+}
+
+.xc-button-audio
+{
+    position: relative;
+    display: inline-block;
+    margin-right: 0.25em;
+    background-color: hsl(0, 0%, 87%);
+    overflow: hidden;
+}
+
+.xc-button-audio ul.jp-controls {
+    list-style-type: none !important;
+    margin: 0em !important;
+    padding: 0em !important;
+}
+
+.xc-button-audio ul.jp-controls li {
+    display: block !important;
+    margin: 0em !important;
+    padding: 0em !important;
+}
+
+.xc-button-audio .jp-progress {
+}
+
+.xc-button-audio .jp-seek-bar {
+    height: 100%;
+}
+
+.xc-button-audio .jp-play-bar {
+    height: 100%;
+    background-color: hsl(0, 0%, 80%);
+    background-image: -webkit-linear-gradient(top, hsl(0, 0%, 73%), hsl(0, 0%, 80%));
+}
+
+/* Default player controls */
+.xc-button-audio .jp-no-solution {
+    font-size: 80%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: block;
+    background-image: url("missing.png");
+    background-repeat: no-repeat;
+    z-index: 10;
+    background-color: hsl(60, 100%, 80%);
+    border: 1px solid hsl(0, 0%, 73%);
+    overflow: hidden;
+    text-indent: 18px;
+    transition: width 0.2s;
+}
+
+.xc-button-audio .jp-no-solution .header {
+    font-weight: bold;
+}
+
+.xc-button-audio .jp-no-solution:hover {
+    text-indent: 0px;
+    padding: 3px;
+    width: auto;
+    height: auto;
+    z-index: 11;
+    background: hsl(60, 100%, 80%);
+    border-radius: 0px 8px 8px 8px;
+}
+
+.xc-button-audio .jp-play:hover {
+}
+
+.xc-button-audio .jp-play {
+    background-image: url("/static/img/play-black.png");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.xc-button-audio .jp-pause:hover {
+}
+.xc-button-audio .jp-pause {
+    background-image: url("/static/img/pause-black.png");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.xc-button-audio ul.jp-controls li a.jp-stop {
+    width: 4px;
+    height: 4px;
+    top: -4px;
+    left: 10px;
+
+    background-color: hsl(0, 0%, 93%);
+    border: 1px solid hsl(0, 0%, 73%);
+    z-index: 3;
+    opacity: 0.75;
+}
+
+.xc-button-audio ul.jp-controls li a.jp-stop:hover {
+    opacity: 1.0;
+    border-color: hsl(0, 0%, 60%);
+    width: 6px;
+    height: 6px;
+    transition: width 0.1s, height 0.1s, opacity 0.1s;
+    -webkit-transition: width 0.1s, height 0.1s, opacity 0.1s;
+    -moz-transition: width 0.1s, height 0.1s, opacity 0.1s;
+}
+
+/***************************************************
+ * Full-size Player
+ ***************************************************/
+.xc-audio {
+    font-size: 12px;
+    overflow: hidden;
+    text-align: left;
+    max-width: 500px;
+    display: block;
+    color: inherit;
+    background-color: inherit;
+}
+
+.xc-audio a {
+    color: hsl(14, 87%, 28%) !important;
+    text-decoration: none !important;
+    font-weight: bold;
+}
+
+.xc-audio ul.jp-controls {
+    list-style-type: none !important;
+    margin: 0em !important;
+    padding: 0em !important;
+}
+
+.xc-audio ul.jp-controls li {
+    display: block;
+    margin: 0em !important;
+    padding: 0em !important;
+}
+
+.xc-audio .jp-interface {
+    height: 24px;
+    position: relative;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    border: 0px solid black;;
+}
+
+.xc-audio .jp-xc-sono {
+    border: 1px solid hsl(0, 0%, 67%);
+    margin: 1px;
+    overflow: hidden;
+    background-color: white;
+}
+.xc-audio .jp-xc-sono img {
+  display: block;
+  width: 100%;
+}
+
+.xc-audio .jp-play,
+.xc-audio .jp-pause,
+.xc-audio .jp-stop {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    background-color: hsl(14, 87%, 28%);
+}
+
+.xc-audio .jp-play,
+.xc-audio .jp-pause,
+.xc-audio .jp-stop,
+.xc-audio .jp-progress {
+    border-radius: 4px;
+}
+
+.xc-audio .jp-play-bar,
+.xc-audio .jp-seek-bar {
+    border-radius: 2px;
+}
+
+.xc-audio .jp-pause:hover,
+.xc-audio .jp-stop:hover,
+.xc-audio .jp-play:hover {
+}
+
+.xc-audio .jp-play {
+    background-image: url("play-24.png");
+    background-repeat: no-repeat;
+    top: 0px;
+    left: 0px;
+}
+
+.xc-audio .jp-pause:hover {
+}
+
+.xc-audio .jp-pause {
+    background-image: url("pause-24.png");
+    background-repeat: no-repeat;
+    top: 0px;
+    left: 0px;
+}
+
+.xc-audio .jp-progress {
+    position: absolute;
+    bottom: 0px;
+    left: 30px;
+    right: 30px;
+    border: 1px solid hsl(0, 0%, 73%);
+    background-color: white;
+}
+
+.xc-audio .jp-seek-bar {
+    background-color: hsl(14, 50%, 80%);
+    cursor: pointer;
+}
+
+.xc-audio .jp-play-bar {
+    height: 9px;
+}
+
+.xc-audio .jp-stop {
+    background-image: url("stop-24.png");
+    background-repeat: no-repeat;
+    top: 0px;
+    right: 0px;
+}
+
+.xc-audio .jp-title,
+.xc-audio .jp-xc-recordist,
+.xc-audio .jp-xc-location,
+.xc-audio .jp-xc-date
+{
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 14px;
+}
+
+.xc-audio .jp-xc-call-type
+{
+    font-weight: normal;
+}
+
+.xc-audio .jp-xc-sci-name {
+  font-style: italic;
+}
+
+.xc-audio .jp-title {
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 6px;
+}
+
+.xc-audio .jp-xc-recordist,
+.xc-audio .jp-xc-location,
+.xc-audio .jp-xc-date
+{
+    font-size: 10px;
+    font-style: italic;
+}
+
+.xc-audio .jp-current-time,
+.xc-audio .jp-xc-duration,
+.xc-audio .jp-duration {
+    color: black;
+    position: absolute;
+    font-size: 9px;
+    height: 10px;
+    line-height: 9px;
+}
+
+.xc-audio .jp-current-time {
+    left: 33px;
+    top: 0;
+}
+
+.xc-audio .jp-xc-duration,
+.xc-audio .jp-duration {
+    right: 33px;
+    top: 0px;
+}
+
+.xc-audio .jp-xc-id table {
+  width: 100%;
+}
+
+.xc-audio .xc-logo {
+  color: inherit;
+  font-weight: bold;
+}
+
+.xc-audio .licenses {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.xc-audio .jp-xc-download {
+    height: 16px;
+    width: 16px;
+    float: right;
+}
