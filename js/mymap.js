@@ -129,3 +129,71 @@ map.on('mouseup', function (e) {
     }
   });
 });
+
+
+// Custom Bounding Box Control
+L.Control.BoundingBox = L.Control.extend({
+  onAdd: function(map) {
+      // Start drawing bounding box immediately
+      this.startDrawingBoundingBox();
+      
+      // Return an empty container
+      const container = L.DomUtil.create('div', 'hidden-control');
+      return container;
+  },
+
+  startDrawingBoundingBox: function() {
+      const drawnItems = new L.FeatureGroup();
+      map.addLayer(drawnItems);
+
+      const drawControl = new L.Control.Draw({
+          draw: {
+              rectangle: {
+                  shapeOptions: {
+                      color: '#3388ff',
+                      fillOpacity: 0.2
+                  }
+              },
+              polygon: false,
+              circle: false,
+              marker: false,
+              circlemarker: false
+          },
+          edit: false,
+          remove: false
+      });
+
+      map.addControl(drawControl);
+
+      map.on('draw:created', function(event) {
+          const layer = event.layer;
+          drawnItems.clearLayers();
+          drawnItems.addLayer(layer);
+
+          const bounds = layer.getBounds();
+          const southwest = bounds.getSouthWest();
+          const northeast = bounds.getNorthEast();
+
+          const coordinates = {
+              swLat: southwest.lat,
+              swLng: southwest.lng,
+              neLat: northeast.lat,
+              neLng: northeast.lng
+          };
+
+          // Now you can use the 'coordinates' object to call your API
+          // with the bounding box coordinates
+          console.log(coordinates);
+
+          // Clear the drawn bounding box
+          map.removeLayer(drawnItems);
+      });
+  }
+});
+
+L.control.boundingBox = function(options) {
+  return new L.Control.BoundingBox(options);
+};
+
+L.control.boundingBox({ position: 'topleft' }).addTo(map);
+
