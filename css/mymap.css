@@ -5,3 +5,7 @@
   background-position: center;
 }
 
+/* Hide the polyline button in Leaflet.Draw */
+.leaflet-draw-draw-polyline {
+  display: none !important;
+}
