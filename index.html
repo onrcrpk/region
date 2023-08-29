@@ -59,54 +59,112 @@
 </head>
 
 <body>
-  Cho33333ose a region of your interest by dragging a box over the map. To drag a box, hold down 'Shift' while dragging your mouse.
+  Cho4ose a region of your interest by dragging a box over the map. To drag a box, hold down 'Shift' while dragging your mouse.
   <div id="map-canvas2"></div>
 
   <script>
+//Set the boundaries for webtiles
+var validBounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
 
-var map = L.map('map-canvas2').setView([48.505, -0.09], 2);
 
+// Create a Leaflet map and set the initial view
+var map = L.map('map-canvas2', {
+  maxBounds: validBounds,
+  zoomControl: false // default zoom control is on the left top.
+}).setView([40, 0], 2);
+
+// Add customized zoom control to the map
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+// Add fullscreen control to the map
+map.addControl(new L.Control.Fullscreen({ position: 'topright' }));
+
+
+// Define basemap layers with their respective properties
 new L.basemapsSwitcher([
+  {
+    layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri'
+    }).setOpacity(0.99).addTo(map),//DEFAULT MAP
+    maxZoom: 18,
+    bounds: validBounds,
+    icon: '/static/img/terrain.jpeg',
+    name: 'Terrain'
+  },
   {
     layer: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).setOpacity(0.75).addTo(map), //DEFAULT MAP
-    icon: 'img/topo.jpg',
+    }).setOpacity(0.75),
+    icon: '/static/img/topo.jpg',
+    bounds: validBounds,
     name: 'OpenTopo'
   },
+
   {
-    layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+    layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
     }).setOpacity(0.8),
     maxZoom: 21,
-    icon: 'img/satellite.jpg',
+    icon: '/static/img/satellite.jpg',
+    bounds: validBounds,
     name: 'Satellite'
   },
   {
     layer: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors)'
     }),
-    icon: 'img/osm.png',
+    icon: '/static/img/osm.png',
+    bounds: validBounds,
     name: 'OSM'
   },
-], { position: 'bottomright' }).addTo(map);
+], { position: 'bottomleft' }).addTo(map);
 
 
+// Create a Leaflet marker group layer and add it to the map
+markersLayer = L.layerGroup().addTo(map);
 
-var rectangle = null;
+// Initialize variables
+var lastRegion;
+var filterText = jQuery('#filter-text');
+
+// Update region results when boxzoomend event is triggered
+map.on('boxzoomend', function (e) {
+  lastRegion = e.boxZoomBounds;
+  updateRegionResults(lastRegion, filterText.val());
+
+});
+
+// Disable filter query until user draw a box.
+jQuery('#filter-form input').attr('disabled', 'disabled');
+
+// Submit filter form and update region results if lastRegion exists
+jQuery('#filter-form').submit(function () {
+  if (lastRegion) {
+    updateRegionResults(lastRegion, filterText.val());
+  }
+  return false;
+});
+
+
+// Leaflet's MarkerClusterGroup plugin. 
 // Define markers layer
 const markers = new L.markerClusterGroup({
   spiderfyOnMaxZoom: false,
   showCoverageOnHover: true,
-  zoomToBoundsOnClick: false
+  zoomToBoundsOnClick: false,
+  maxClusterRadius: 30 //sets the maximum radius (in pixels) of a cluster.
 });
 
 // Add markers layer to map
 map.addLayer(markers);
+
+
 // Initialize variables for tracking mouse events
 let isDragging = false;
 let startLatLng;
 let endLatLng;
+var rectangle = null;
+
 // Add event listeners for mouse events
 map.on('mousedown', function (e) {
   if (e.originalEvent.shiftKey) {
@@ -114,6 +172,7 @@ map.on('mousedown', function (e) {
     startLatLng = e.latlng;
   }
 });
+
 map.on('mousemove', function (e) {
   if (isDragging) {
     endLatLng = e.latlng;
@@ -130,14 +189,11 @@ map.on('mousemove', function (e) {
     }
   }
 });
+
 map.on('mouseup', function (e) {
   if (isDragging) {
     isDragging = false;
     endLatLng = e.latlng;
-
-    // Construct API URL based on selected area
-    const bounds = L.latLngBounds(startLatLng, endLatLng);
-    const url = `https://xeno-canto.org/api/internal/region-results?yn=${bounds._northEast.lat}&xe=${bounds._northEast.lng}&ys=${bounds._southWest.lat}&xw=${bounds._southWest.lng}&query=`;
 
     // Remove rectangle from map
     if (rectangle) {
@@ -145,31 +201,10 @@ map.on('mouseup', function (e) {
       rectangle = null;
     }
 
-    // Fetch data from API
-    fetch(url)
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        // Clear previous markers
-        markers.clearLayers();
-
-        var markersData = data.markers;
-
-        // Loop through markers data and add to cluster layer
-        for (var i = 0; i < markersData.length; i++) {
-          var markerData = markersData[i];
-          var markerIcon = L.icon({
-            iconUrl: 'css/images/marker-icon.png',
-            iconSize: [15, 15], // adjust size as needed
-          });
-          var marker = L.marker([markerData.lat, markerData.lon], { icon: markerIcon });
-          marker.bindPopup(markerData.title);
-          markers.addLayer(marker);
-        }
-      });
   }
-  markers.on('clusterclick', function(evt) {
+
+
+  markers.on('clusterclick', function (evt) {
     // Check if cluster is at maximum zoom level
     var maxZoom = map.getBoundsZoom(evt.layer.getBounds());
     if (maxZoom === map.getMaxZoom()) {
@@ -179,7 +214,8 @@ map.on('mouseup', function (e) {
         '<div class="container"><table class="table table-striped">' +
         '<thead><tr><th>Recordings</th></tr></thead>' +
         '<tbody>';
-      clusterMarkers.forEach(function(marker) {
+      clusterMarkers.forEach(function (marker) {
+        
         var title = marker.getPopup().getContent();
         popupContent += '<tr><td>' + title + '</td></tr>';
       });
@@ -192,10 +228,21 @@ map.on('mouseup', function (e) {
       // If not at max zoom, zoom to cluster
       map.flyToBounds(evt.layer.getBounds());
     }
+
+
   });
+
+  
+
+  
+  
+  
 });
 
-    
+
+
+
+
 
 
 // Custom Bounding Box Control
@@ -264,7 +311,247 @@ L.control.boundingBox = function(options) {
 L.control.boundingBox({ position: 'topleft' }).addTo(map);
 
 
+
   </script>
+
+ <script>
+   
+// Function to update the region results based on the provided bounds and query.
+function updateRegionResults(bounds, query) {
+
+  // Update the HTML content of the element with ID 'region-results' to display a loading message.
+  jQuery('#region-results2').html('<p>Querying database...</p>');
+
+
+  // Extract the latitude and longitude values from the bounds object and convert them to floating-point numbers with three decimal places.
+  // These values represent the coordinates of the northeast and southwest corners of the region.
+  var northEastLat = parseFloat(bounds._northEast.lat).toFixed(3);
+  var northEastLng = parseFloat(bounds._northEast.lng).toFixed(3);
+  var southWestLat = parseFloat(bounds._southWest.lat).toFixed(3);
+  var southWestLng = parseFloat(bounds._southWest.lng).toFixed(3);
+
+
+  // Construct the API URL by combining the extracted latitude and longitude values, along with the search query.
+  // The values are URL-encoded to ensure proper formatting.
+  var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}&query=${encodeURIComponent(query)}`;
+
+  console.log(apiUrl);
+
+  // Perform an HTTP request to the specified API endpoint using the constructed URL. Retrieve the response data as JSON.
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+
+      // Construct a URL for exploring the selected region and query.
+      var url = `/explore?query=${encodeURIComponent('box:' + southWestLat + ',' + southWestLng + ',' + northEastLat + ',' + northEastLng + ' ' + query)}`;
+
+      // Initialize a variable to hold an additional note.
+      var noteMore = '';
+
+
+      // Enable the input elements within the 'filter-form' element.
+      jQuery('#filter-form input').removeAttr('disabled');
+      if (data.summary.recordings > data.markers.length) {
+        noteMore = '(only the first ' + data.markers.length + ' recordings are shown on the map)';
+
+      }
+
+      // Update the HTML content of the 'region-results' element to display the summary information and the additional note.
+      jQuery('#region-results2').html(`<p><a href="${url}">${data.summary.recordings} Recordings from ${data.summary.species} species</a> ${noteMore} found in the selected region</p>`);
+
+      console.time('Marker Plotting'); // Start timing the marker plotting
+
+
+      // Clear the existing marker layers.
+      markers.clearLayers();
+
+      
+      // Retrieve the marker data from the response.
+      var markersData = data.markers;
+
+      
+      // Iterate over the markers data.
+      for (var i = 0; i < markersData.length; i++) {
+        // Get the data for a specific marker.
+        var markerData = markersData[i];
+
+        // Create a custom marker icon.
+        var markerIcon = L.icon({
+          iconUrl: '/static/css/images/marker-icon.png',
+          iconSize: [15, 15],
+        });
+
+        // Create a marker object with the specified latitude, longitude, and custom icon.
+        var marker = L.marker([markerData.lat, markerData.lon], { icon: markerIcon });
+
+        // Bind popup to marker
+        marker.bindPopup('<div class="custom-popup"><div class="fancybox-content"></div></div>', { minWidth: 190, maxWidth: 190, maxHeight: 190 })
+          .on('popupopen', createPopupOpenHandler(markerData));
+
+        // Add the marker to the marker layer.
+        markers.addLayer(marker);
+
+        
+      }
+
+      console.timeEnd('Marker Plotting'); // End timing the marker plotting
+
+      // Function to create the popupopen event listener
+      function createPopupOpenHandler(markerData) {
+        return function () {
+          var recordingId = markerData.id; // Capture the specific marker's recording ID
+          var popup = this.getPopup();
+
+          // Function to update the popup content with API data
+          function updatePopupContent() {
+            // Fetch JSON data for the marker from the API
+            fetch(`https://xeno-canto.org/api/internal/ajax-player?nr=${recordingId}`)
+              .then(response => response.json())
+              .then(jsonData => {
+                // Get the fancybox-content element within the popup content
+                var fancyboxContent = popup.getElement().querySelector('.fancybox-content');
+
+                // Update the fancybox-content with the HTML content from the API response
+                fancyboxContent.innerHTML = jsonData.content;
+
+
+              })
+              .catch(error => {
+                console.error('Error fetching data:', error);
+              });
+          }
+
+          // Call the function to update the popup content
+          updatePopupContent();
+        };
+      }
+
+    })
+    // Log an error message if there is an error fetching the data.
+    .catch(error => {
+      console.error('Error fetching data:', error);
+
+    }, 'json');
+}
+
+// Function to update the region results based on the provided bounds and query.
+function updateRegionResults2(coordinates, query) {
+
+  // Update the HTML content of the element with ID 'region-results' to display a loading message.
+  jQuery('#region-results2').html('<p>Querying database...</p>');
+
+
+  // Extract the latitude and longitude values from the bounds object and convert them to floating-point numbers with three decimal places.
+  // These values represent the coordinates of the northeast and southwest corners of the region.
+  var northEastLat = parseFloat(coordinates.neLat).toFixed(3);
+  var northEastLng = parseFloat(coordinates.neLng).toFixed(3);
+  var southWestLat = parseFloat(coordinates.swLat).toFixed(3);
+  var southWestLng = parseFloat(coordinates.swLng).toFixed(3);
+
+  // Construct the API URL by combining the extracted latitude and longitude values, along with the search query.
+  // The values are URL-encoded to ensure proper formatting.
+  var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}&query=${encodeURIComponent(query)}`;
+
+  console.log(apiUrl);
+
+  // Perform an HTTP request to the specified API endpoint using the constructed URL. Retrieve the response data as JSON.
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+
+      // Construct a URL for exploring the selected region and query.
+      var url = `/explore?query=${encodeURIComponent('box:' + southWestLat + ',' + southWestLng + ',' + northEastLat + ',' + northEastLng + ' ' + query)}`;
+
+      // Initialize a variable to hold an additional note.
+      var noteMore = '';
+
+
+      // Enable the input elements within the 'filter-form' element.
+      jQuery('#filter-form input').removeAttr('disabled');
+      if (data.summary.recordings > data.markers.length) {
+        noteMore = '(only the first ' + data.markers.length + ' recordings are shown on the map)';
+
+      }
+
+      // Update the HTML content of the 'region-results' element to display the summary information and the additional note.
+      jQuery('#region-results2').html(`<p><a href="${url}">${data.summary.recordings} Recordings from ${data.summary.species} species</a> ${noteMore} found in the selected region</p>`);
+
+      console.time('Marker Plotting'); // Start timing the marker plotting
+
+
+      // Clear the existing marker layers.
+      markers.clearLayers();
+
+      
+      // Retrieve the marker data from the response.
+      var markersData = data.markers;
+
+      
+      // Iterate over the markers data.
+      for (var i = 0; i < markersData.length; i++) {
+        // Get the data for a specific marker.
+        var markerData = markersData[i];
+
+        // Create a custom marker icon.
+        var markerIcon = L.icon({
+          iconUrl: '/static/css/images/marker-icon.png',
+          iconSize: [15, 15],
+        });
+
+        // Create a marker object with the specified latitude, longitude, and custom icon.
+        var marker = L.marker([markerData.lat, markerData.lon], { icon: markerIcon });
+
+        // Bind popup to marker
+        marker.bindPopup('<div class="custom-popup"><div class="fancybox-content"></div></div>', { minWidth: 190, maxWidth: 190, maxHeight: 190 })
+          .on('popupopen', createPopupOpenHandler(markerData));
+
+        // Add the marker to the marker layer.
+        markers.addLayer(marker);
+
+        
+      }
+
+      console.timeEnd('Marker Plotting'); // End timing the marker plotting
+
+      // Function to create the popupopen event listener
+      function createPopupOpenHandler(markerData) {
+        return function () {
+          var recordingId = markerData.id; // Capture the specific marker's recording ID
+          var popup = this.getPopup();
+
+          // Function to update the popup content with API data
+          function updatePopupContent() {
+            // Fetch JSON data for the marker from the API
+            fetch(`https://xeno-canto.org/api/internal/ajax-player?nr=${recordingId}`)
+              .then(response => response.json())
+              .then(jsonData => {
+                // Get the fancybox-content element within the popup content
+                var fancyboxContent = popup.getElement().querySelector('.fancybox-content');
+
+                // Update the fancybox-content with the HTML content from the API response
+                fancyboxContent.innerHTML = jsonData.content;
+
+
+              })
+              .catch(error => {
+                console.error('Error fetching data:', error);
+              });
+          }
+
+          // Call the function to update the popup content
+          updatePopupContent();
+        };
+      }
+
+    })
+    // Log an error message if there is an error fetching the data.
+    .catch(error => {
+      console.error('Error fetching data:', error);
+
+    }, 'json');
+}
+     </script>
+     
 </body>
 
 </html>
