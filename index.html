@@ -335,7 +335,7 @@ function updateRegionResults(bounds, query) {
 
   // Construct the API URL by combining the extracted latitude and longitude values, along with the search query.
   // The values are URL-encoded to ensure proper formatting.
-    var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}`;
+    var apiUrl = `https://xeno-canto.org/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}`;
     
     if (query) {
         apiUrl += `&query=${encodeURIComponent(query)}`;
@@ -456,7 +456,7 @@ function updateRegionResults2(coordinates, query) {
 
   // Construct the API URL by combining the extracted latitude and longitude values, along with the search query.
   // The values are URL-encoded to ensure proper formatting.
-    var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}`;
+    var apiUrl = `https://xeno-canto.org/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}`;
     
     if (query) {
         apiUrl += `&query=${encodeURIComponent(query)}`;
