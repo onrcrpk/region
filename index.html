@@ -335,9 +335,13 @@ function updateRegionResults(bounds, query) {
 
   // Construct the API URL by combining the extracted latitude and longitude values, along with the search query.
   // The values are URL-encoded to ensure proper formatting.
-  var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}&query=${encodeURIComponent(query)}`;
+    var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}`;
+    
+    if (query) {
+        apiUrl += `&query=${encodeURIComponent(query)}`;
+    }
 
-  console.log(apiUrl);
+    console.log(apiUrl);
 
   // Perform an HTTP request to the specified API endpoint using the constructed URL. Retrieve the response data as JSON.
   fetch(apiUrl)
@@ -452,9 +456,13 @@ function updateRegionResults2(coordinates, query) {
 
   // Construct the API URL by combining the extracted latitude and longitude values, along with the search query.
   // The values are URL-encoded to ensure proper formatting.
-  var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}&query=${encodeURIComponent(query)}`;
+    var apiUrl = `/api/internal/region-results?yn=${northEastLat}&xe=${northEastLng}&ys=${southWestLat}&xw=${southWestLng}`;
+    
+    if (query) {
+        apiUrl += `&query=${encodeURIComponent(query)}`;
+    }
 
-  console.log(apiUrl);
+    console.log(apiUrl);
 
   // Perform an HTTP request to the specified API endpoint using the constructed URL. Retrieve the response data as JSON.
   fetch(apiUrl)
